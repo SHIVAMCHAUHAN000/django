@@ -11,4 +11,5 @@ urlpatterns = [
     path('calculator/', views.calculator),
     path('json/', views.json),  # Added path for JSON response
     path('apidata/', views.apidata),  # Added path for API data
+    re_path(r'^regex/(?P<username>[a-zA-Z0-9_]+)/$', views.regex, name='regex'),  # Regex path for username
 ]

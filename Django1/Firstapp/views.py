@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse, HttpResponse
 import requests
+from django .urls import path, re_path
 
 def hellofunction(request):
     name= "anathony"
@@ -91,3 +92,7 @@ def apidata(request):
     response = requests.get("https://api.cricapi.com/v1/cricScore?apikey=%APIKEY%")
     data = response.json()
     return JsonResponse(data,safe=False)
+
+
+def regex(request,username):
+    return HttpResponse(f"<h1>Welcome {username}!</h1>")
