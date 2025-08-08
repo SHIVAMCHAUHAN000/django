@@ -10,4 +10,5 @@ urlpatterns = [
     path('add/', views.add),
     path('calculator/', views.calculator),
     path('json/', views.json),  # Added path for JSON response
+    path('apidata/', views.apidata),  # Added path for API data
 ]

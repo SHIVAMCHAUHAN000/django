@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse, HttpResponse
+import requests
 
 def hellofunction(request):
     name= "anathony"
@@ -85,3 +86,8 @@ def json(request):
         'location': 'New York'
     }
     return JsonResponse(data)
+
+def apidata(request):
+    response = requests.get("https://api.cricapi.com/v1/cricScore?apikey=%APIKEY%")
+    data = response.json()
+    return JsonResponse(data,safe=False)
