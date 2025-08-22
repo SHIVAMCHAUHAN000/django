@@ -96,3 +96,10 @@ def apidata(request):
 
 def regex(request,username):
     return HttpResponse(f"<h1>Welcome {username}!</h1>")
+
+
+def indexpage(request):
+    return render(request,'myapp/index.html')
+
+def aboutme(request):
+    return render(request, 'child.html')

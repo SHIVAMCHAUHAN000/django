@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me - Interactive</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        h1 {
+            color: #0078d7;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.7;
+        }
+        .btn {
+            background: #0078d7;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #005fa3;
+        }
+        #fact {
+            margin-top: 30px;
+            font-size: 1.1em;
+            color: #444;
+            background: #e6f7ff;
+            padding: 18px;
+            border-radius: 8px;
+            display: none;
+        }
+        /* Moving text animation */
+        .moving-text {
+            position: absolute;
+            top: 10px;
+            left: -100%;
+            width: 100%;
+            font-size: 1.3em;
+            color: #ff4081;
+            font-weight: bold;
+            animation: moveText 8s linear infinite;
+            z-index: 2;
+        }
+        @keyframes moveText {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        /* Floating bubbles */
+        .bubble {
+            position: absolute;
+            bottom: -60px;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: floatBubble 10s linear infinite;
+        }
+        .bubble1 { left: 10%; width: 40px; height: 40px; background: #66a6ff; animation-delay: 0s;}
+        .bubble2 { left: 30%; width: 30px; height: 30px; background: #89f7fe; animation-delay: 2s;}
+        .bubble3 { left: 60%; width: 50px; height: 50px; background: #0078d7; animation-delay: 4s;}
+        .bubble4 { left: 80%; width: 25px; height: 25px; background: #ff4081; animation-delay: 6s;}
+        @keyframes floatBubble {
+            0% { bottom: -60px; }
+            100% { bottom: 100%; }
+        }
+    </style>
+    <script>
+        function showFact() {
+            const facts = [
+                "Did you know? Django was named after jazz guitarist Django Reinhardt.",
+                "Python was created by Guido van Rossum and released in 1991.",
+                "The first website ever built was at CERN in 1991.",
+                "You can build REST APIs easily with Django REST Framework.",
+                "Django’s admin interface is automatically generated from your models!"
+            ];
+            const fact = facts[Math.floor(Math.random() * facts.length)];
+            document.getElementById('fact').innerText = fact;
+            document.getElementById('fact').style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="moving-text">Welcome to My Interactive Django Website!</div>
+        <div class="bubble bubble1"></div>
+        <div class="bubble bubble2"></div>
+        <div class="bubble bubble3"></div>
+        <div class="bubble bubble4"></div>
+        <h1>About Me</h1>
+        <p>
+            Hello! My name is <strong>Anathony</strong>. I am passionate about technology and web development.<br>
+            I enjoy building creative and useful web applications using Django and Python.<br>
+            Currently, I am exploring new ways to make websites more interactive and user-friendly.<br>
+            I love learning, solving problems, and collaborating with others to create something extraordinary!
+        </p>
+        <h2>Let's Build Something ExtraOrdinary!!!!!!</h2>
+        <button class="btn" onclick="showFact()">Show Me Something Interesting!</button>
+        <div id="fact"></div>
+    </div>
+    {% block content %}
+    {% endblock %}
+
+
+</body>
+</html>

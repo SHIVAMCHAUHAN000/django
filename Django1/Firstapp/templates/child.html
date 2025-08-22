@@ -1,0 +1,481 @@
+{% extends 'myapp/index.html' %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- User Profile Card -->
+    <div class="profile-card">
+        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Avatar" class="avatar">
+        <div>
+            <h3>Anathony</h3>
+            <span class="username">@anathony_trader</span>
+        </div>
+    </div>
+    <!-- Notification Popup -->
+    <div id="notification" class="notification"></div>
+    <h1>Trading Dashboard</h1>
+    <div id="ticker" class="ticker">$1000.00</div>
+    <div class="stats">
+        <span id="high">High: $1000.00</span>
+        <span id="low">Low: $1000.00</span>
+        <span id="change">Change: 0.00%</span>
+        <span id="timer">Next update in: <span id="countdown">1.5</span>s</span>
+    </div>
+    <div class="summary-card">
+        <strong>Total Trades:</strong> <span id="totalTrades">0</span>
+        <strong>Last Trade:</strong> <span id="lastTrade">None</span>
+    </div>
+    <button class="trade-btn" onclick="trade('Buy')" title="Buy at current price">Buy</button>
+    <button class="trade-btn" onclick="trade('Sell')" title="Sell at current price">Sell</button>
+    <button class="trade-btn" onclick="resetHistory()" title="Clear trade history">Reset History</button>
+    <button class="trade-btn" onclick="openSettings()" title="Open settings">Settings</button>
+    <hr>
+    <h2>Trade History</h2>
+    <ul id="history" style="list-style:none; padding:0; color:#444;"></ul>
+    <hr>
+    <h2>Set Custom Price</h2>
+    <input type="number" id="customPrice" placeholder="Enter price" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
+    <button class="trade-btn" onclick="setCustomPrice()">Set Price</button>
+    <hr>
+    <h2>Market News</h2>
+    <div id="news" style="background:#e6f7ff; padding:16px; border-radius:8px; color:#222;">
+        <strong>Latest:</strong> Market is stable. No major changes.
+    </div>
+    <hr>
+    <h2>Theme Switcher</h2>
+    <button class="trade-btn" onclick="toggleTheme()">Toggle Dark/Light</button>
+    <hr>
+    <h2>Feedback</h2>
+    <form id="feedbackForm" onsubmit="submitFeedback(event)">
+        <input type="text" id="feedbackInput" placeholder="Your feedback..." style="padding:8px; border-radius:6px; border:1px solid #ccc; width:60%;">
+        <button class="trade-btn" type="submit">Send</button>
+    </form>
+    <div id="feedbackList" style="margin-top:10px;"></div>
+    <hr>
+    <h2>Animated Chart</h2>
+    <div id="spinner" class="spinner"></div>
+    <canvas id="chart" width="500" height="120" style="background:#f8ffae; border-radius:8px;"></canvas>
+    <hr>
+    <h2>Leaderboard</h2>
+    <table class="leaderboard">
+        <tr><th>Rank</th><th>User</th><th>Trades</th></tr>
+        <tr><td>1</td><td>@trader_pro</td><td>42</td></tr>
+        <tr><td>2</td><td>@anathony_trader</td><td id="myTrades">0</td></tr>
+        <tr><td>3</td><td>@market_guru</td><td>28</td></tr>
+    </table>
+</div>
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeSettings()">&times;</span>
+        <h2>Settings</h2>
+        <label>
+            <input type="checkbox" id="soundToggle" checked>
+            Enable Trade Sound
+        </label>
+        <br><br>
+        <label>
+            <input type="checkbox" id="darkToggle" onchange="toggleTheme()">
+            Dark Theme
+        </label>
+    </div>
+</div>
+<style>
+    .dashboard {
+        max-width: 700px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+        padding: 30px 20px 40px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s, color 0.3s;
+    }
+    .profile-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: #f8ffae;
+        border-radius: 12px;
+        padding: 12px 18px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(67,198,172,0.10);
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid #43c6ac;
+    }
+    .username {
+        color: #0078d7;
+        font-size: 0.95em;
+    }
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #43c6ac;
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(67,198,172,0.15);
+        display: none;
+        z-index: 999;
+        font-size: 1.1em;
+    }
+    .ticker {
+        font-size: 2.2em;
+        margin: 20px 0;
+        color: #222;
+        font-weight: bold;
+        letter-spacing: 2px;
+        transition: color 0.3s;
+    }
+    .stats {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 18px;
+        font-size: 1.1em;
+        color: #0078d7;
+        flex-wrap: wrap;
+    }
+    .summary-card {
+        background: #e6f7ff;
+        border-radius: 10px;
+        padding: 10px 0;
+        margin-bottom: 18px;
+        display: flex;
+        justify-content: space-around;
+        font-size: 1.1em;
+        color: #222;
+    }
+    .trade-btn {
+        background: linear-gradient(90deg, #43c6ac 0%, #f8ffae 100%);
+        color: #222;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        margin: 12px 6px;
+        box-shadow: 0 2px 8px rgba(67,198,172,0.15);
+        transition: background 0.2s, color 0.2s;
+        position: relative;
+    }
+    .trade-btn:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #0078d7;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        white-space: nowrap;
+        z-index: 10;
+    }
+    .trade-btn:hover {
+        background: linear-gradient(90deg, #f8ffae 0%, #43c6ac 100%);
+        color: #0078d7;
+    }
+    .dashboard.dark {
+        background: #222;
+        color: #f8ffae;
+    }
+    .dashboard.dark .trade-btn {
+        background: #444;
+        color: #f8ffae;
+    }
+    .dashboard.dark .trade-btn:hover {
+        background: #0078d7;
+        color: #fff;
+    }
+    .dashboard.dark #news {
+        background: #333;
+        color: #f8ffae;
+    }
+    .dashboard.dark #chart {
+        background: #333;
+    }
+    .dashboard.dark .profile-card {
+        background: #333;
+        color: #f8ffae;
+    }
+    .dashboard.dark .summary-card {
+        background: #444;
+        color: #f8ffae;
+    }
+    .dashboard.dark .leaderboard {
+        background: #333;
+        color: #f8ffae;
+    }
+    .spinner {
+        display: none;
+        margin: 0 auto 10px auto;
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #43c6ac;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+    }
+    .leaderboard {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        border-collapse: collapse;
+        background: #e6f7ff;
+        border-radius: 8px;
+        overflow: hidden;
+        font-size: 1em;
+    }
+    .leaderboard th, .leaderboard td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #ddd;
+    }
+    .leaderboard th {
+        background: #43c6ac;
+        color: #fff;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        overflow: auto;
+        background: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background: #fff;
+        margin: 10% auto;
+        padding: 24px;
+        border-radius: 12px;
+        width: 300px;
+        position: relative;
+        color: #222;
+    }
+    .close {
+        position: absolute;
+        top: 12px;
+        right: 18px;
+        font-size: 2em;
+        cursor: pointer;
+        color: #0078d7;
+    }
+    @media (max-width: 800px) {
+        .dashboard { max-width: 98vw; padding: 10px;}
+        .profile-card { flex-direction: column; gap: 8px;}
+        .summary-card { flex-direction: column; gap: 8px;}
+        .leaderboard { font-size: 0.9em;}
+    }
+</style>
+<script>
+    let price = 1000;
+    let high = price;
+    let low = price;
+    let history = [];
+    let chartData = [price];
+    let feedbacks = [];
+    let totalTrades = 0;
+    let lastTrade = "None";
+    let countdown = 1.5;
+    let timerInterval;
+    let soundEnabled = true;
+
+    function updatePrice() {
+        showSpinner();
+        const change = (Math.random() - 0.5) * 10;
+        price += change;
+        price = Math.round(price * 100) / 100;
+        high = Math.max(high, price);
+        low = Math.min(low, price);
+        chartData.push(price);
+        if (chartData.length > 50) chartData.shift();
+
+        document.getElementById('ticker').textContent = '$' + price;
+        document.getElementById('high').textContent = 'High: $' + high.toFixed(2);
+        document.getElementById('low').textContent = 'Low: $' + low.toFixed(2);
+        document.getElementById('change').textContent = 'Change: ' + ((change/price)*100).toFixed(2) + '%';
+        document.getElementById('ticker').className = 'ticker ' + (change >= 0 ? 'price-up' : 'price-down');
+        updateNews(change);
+        drawChart();
+        hideSpinner();
+        startCountdown();
+    }
+    setInterval(updatePrice, 1500);
+
+    function trade(type) {
+        if (soundEnabled) playSound();
+        showNotification(type + " order placed at $" + price);
+        history.push(type + " at $" + price);
+        totalTrades++;
+        lastTrade = type + " at $" + price;
+        updateHistory();
+        updateSummary();
+        updateLeaderboard();
+    }
+
+    function updateHistory() {
+        const historyList = document.getElementById('history');
+        historyList.innerHTML = "";
+        for (let i = history.length - 1; i >= 0; i--) {
+            let li = document.createElement('li');
+            li.textContent = history[i];
+            historyList.appendChild(li);
+        }
+    }
+
+    function resetHistory() {
+        history = [];
+        totalTrades = 0;
+        lastTrade = "None";
+        updateHistory();
+        updateSummary();
+        updateLeaderboard();
+    }
+
+    function setCustomPrice() {
+        const custom = document.getElementById('customPrice').value;
+        if (custom && !isNaN(custom)) {
+            price = parseFloat(custom);
+            high = Math.max(high, price);
+            low = Math.min(low, price);
+            document.getElementById('ticker').textContent = '$' + price;
+            chartData.push(price);
+            drawChart();
+        }
+    }
+
+    function updateNews(change) {
+        const news = document.getElementById('news');
+        if (change > 5) {
+            news.innerHTML = "<strong>Breaking:</strong> Price surged rapidly!";
+            showNotification("Price surged rapidly!");
+        } else if (change < -5) {
+            news.innerHTML = "<strong>Alert:</strong> Price dropped sharply!";
+            showNotification("Price dropped sharply!");
+        } else {
+            news.innerHTML = "<strong>Latest:</strong> Market is stable. No major changes.";
+        }
+    }
+
+    function toggleTheme() {
+        document.querySelector('.dashboard').classList.toggle('dark');
+        document.getElementById('darkToggle').checked = document.querySelector('.dashboard').classList.contains('dark');
+    }
+
+    function submitFeedback(event) {
+        event.preventDefault();
+        const input = document.getElementById('feedbackInput');
+        if (input.value.trim() !== "") {
+            feedbacks.push(input.value.trim());
+            input.value = "";
+            updateFeedback();
+        }
+    }
+
+    function updateFeedback() {
+        const feedbackList = document.getElementById('feedbackList');
+        feedbackList.innerHTML = "";
+        feedbacks.slice(-5).forEach(fb => {
+            let div = document.createElement('div');
+            div.textContent = fb;
+            feedbackList.appendChild(div);
+        });
+    }
+
+    function drawChart() {
+        showSpinner();
+        setTimeout(() => {
+            const canvas = document.getElementById('chart');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - (chartData[0] - low) / (high - low + 1) * canvas.height);
+            for (let i = 1; i < chartData.length; i++) {
+                let x = (i / chartData.length) * canvas.width;
+                let y = canvas.height - (chartData[i] - low) / (high - low + 1) * canvas.height;
+                ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = "#43c6ac";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            hideSpinner();
+        }, 400);
+    }
+    window.onload = function() {
+        drawChart();
+        startCountdown();
+    };
+
+    function showSpinner() {
+        document.getElementById('spinner').style.display = 'block';
+    }
+    function hideSpinner() {
+        document.getElementById('spinner').style.display = 'none';
+    }
+
+    function showNotification(msg) {
+        const notification = document.getElementById('notification');
+        notification.textContent = msg;
+        notification.style.display = 'block';
+        setTimeout(() => { notification.style.display = 'none'; }, 2000);
+    }
+
+    function startCountdown() {
+        countdown = 1.5;
+        document.getElementById('countdown').textContent = countdown.toFixed(1);
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            countdown -= 0.1;
+            document.getElementById('countdown').textContent = countdown.toFixed(1);
+            if (countdown <= 0) clearInterval(timerInterval);
+        }, 100);
+    }
+
+    function updateSummary() {
+        document.getElementById('totalTrades').textContent = totalTrades;
+        document.getElementById('lastTrade').textContent = lastTrade;
+    }
+
+    function updateLeaderboard() {
+        document.getElementById('myTrades').textContent = totalTrades;
+    }
+
+    function openSettings() {
+        document.getElementById('settingsModal').style.display = 'block';
+    }
+    function closeSettings() {
+        document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    document.getElementById('soundToggle').addEventListener('change', function() {
+        soundEnabled = this.checked;
+    });
+
+    // Sound effect for trades
+    function playSound() {
+        const ctx = new(window.AudioContext || window.webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+        oscillator.connect(ctx.destination);
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 150);
+    }
+</script>
+{% endblock %}
+
